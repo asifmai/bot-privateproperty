@@ -222,9 +222,7 @@ module.exports.getAttr = (selector, attribute, page) => new Promise(async (resol
         (elm, attribute) => elm.getAttribute(attribute).trim(),
         attribute
       );
-    } else {
-      console.log(`Node not found`);
-    };
+    }
 
     resolve(attr);
   } catch (error) {
@@ -258,3 +256,26 @@ module.exports.getAttrMultiple = (selector, attribute, page) => new Promise(asyn
     reject(error);
   }
 });
+
+/**
+ * Scroll the page to the bottom
+ * @param {object} page Puppeteer Page Instance
+ */
+module.exports.autoScroll = async (page) => {
+  await page.evaluate(async () => {
+    await new Promise((resolve, reject) => {
+      let totalHeight = 0;
+      const distance = 100;
+      const timer = setInterval(() => {
+        const scrollHeight = document.body.scrollHeight;
+        window.scrollBy(0, distance);
+        totalHeight += distance;
+
+        if (totalHeight >= scrollHeight) {
+          clearInterval(timer);
+          resolve();
+        }
+      }, 100);
+    });
+  });
+}
